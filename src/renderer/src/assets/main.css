@@ -10,6 +10,17 @@ body {
   user-select: none;
 }
 
+body[style*="background: transparent;"] {
+  display: block !important;
+  align-items: initial !important;
+  justify-content: initial !important;
+  overflow: hidden !important;
+  background-image: none !important;
+  background-size: auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
 code {
   font-weight: 600;
   padding: 3px 5px;
@@ -32,6 +43,15 @@ code {
   justify-content: center;
   flex-direction: column;
   margin-bottom: 80px;
+}
+
+body[style*="background: transparent;"] #root {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  margin-bottom: 0 !important;
 }
 
 .logo {

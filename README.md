@@ -1,4 +1,4 @@
-# my-app
+# VibeLayer
 
 An Electron application with React
 
