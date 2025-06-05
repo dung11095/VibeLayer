@@ -4,19 +4,15 @@ import { createApi } from 'unsplash-js'
 import { Rnd } from 'react-rnd'
 import * as imglyRemoveBackground from '@imgly/background-removal'
 
-// Helper function to convert local file path to a valid file:// URL
 function toFileUrl(filePath) {
-  // Replace all backslashes with forward slashes
   let path = filePath.replace(/\\/g, '/');
 
-  // Handle Windows drive letter paths (e.g., C:/...)
   if (/^[A-Za-z]:\//.test(path)) {
     // Ensure three slashes for Windows drive paths and encode the path
     return 'file:///' + encodeURI(path);
   }
 
   // Handle other paths (e.g., network paths, relative paths)
-  // Ensure two slashes for non-Windows drive paths and encode the path
   return 'file://' + encodeURI(path);
 }
 
@@ -46,14 +42,12 @@ function App() {
   useEffect(() => { loadLayout() }, [])
   useEffect(() => { loadSettings() }, [])
 
-  // Toast helper
   const showToast = (msg) => {
     setToast(msg)
     if (toastTimeout.current) clearTimeout(toastTimeout.current)
     toastTimeout.current = setTimeout(() => setToast(''), 2000)
   }
 
-  // Stickers
   const fetchStickers = async () => {
     const files = await window.electron.ipcRenderer.invoke('list-stickers')
     files.forEach(sticker => console.log('Sticker path:', sticker.path))
@@ -88,7 +82,6 @@ function App() {
     showToast('Settings saved!')
   }
 
-  // Search Giphy and Unsplash
   const handleSearch = async () => {
     setLoading(true)
     setResults([])
@@ -100,7 +93,6 @@ function App() {
     setLoading(false)
   }
 
-  // Import from URL
   const handleImportUrl = async () => {
     setLoading(true)
     try {
@@ -113,7 +105,7 @@ function App() {
     } catch (e) { showToast('Import failed!') }
     setLoading(false)
   }
-  // Import from local file (select)
+
   const handleImportLocal = (e) => {
     const file = e.target.files[0]
     setLocalFile(file || null)
@@ -123,7 +115,7 @@ function App() {
       setLocalPreview(null)
     }
   }
-  // Import from local file (button)
+
   const handleImportLocalButton = async () => {
     if (!localFile) return
     setLoading(true)
@@ -134,7 +126,7 @@ function App() {
     setLocalPreview(null)
     setLoading(false)
   }
-  // Import from search result
+
   const handleImport = async (item) => {
     setLoading(true)
     try {
@@ -146,11 +138,11 @@ function App() {
     } catch (e) { showToast('Import failed!') }
     setLoading(false)
   }
-  // Remove BG for a sticker
+
   const handleRemoveBg = async (sticker) => {
     setLoading(true)
     try {
-      // Use toFileUrl to read the image for processing
+
       const response = await fetch(toFileUrl(sticker.path))
       const blob = await response.blob()
       const file = new File([blob], sticker.name)

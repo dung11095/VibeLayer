@@ -8,37 +8,35 @@ const Store = require('electron-store')
 const AutoLaunch = require('auto-launch')
 
 function createWindows() {
-  // Sticker Window (transparent, always-on-top, click-through)
   const stickerWindow = new BrowserWindow({
-    width: 400,
-    height: 400,
     transparent: true,
     frame: false,
     alwaysOnTop: true,
     hasShadow: false,
     resizable: false,
     skipTaskbar: true,
-    focusable: false, // click-through
+    focusable: false,
+    fullscreen: true,
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: false,
-      webSecurity: false // allow loading local file URLs
+      webSecurity: false 
     }
   });
-  // Enable click-through
+
   stickerWindow.setIgnoreMouseEvents(true, { forward: true });
 
-  // Manager Window (normal)
   const managerWindow = new BrowserWindow({
     width: 900,
     height: 670,
+    frame: false,
     show: false,
     autoHideMenuBar: true,
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: false,
-      webSecurity: false // allow loading local file URLs
+      webSecurity: false 
     }
   });
 
@@ -46,7 +44,6 @@ function createWindows() {
     managerWindow.show();
   });
 
-  // Load URLs
   if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
     stickerWindow.loadURL(process.env['ELECTRON_RENDERER_URL'] + '/sticker.html');
     managerWindow.loadURL(process.env['ELECTRON_RENDERER_URL'] + '/index.html');
@@ -55,7 +52,7 @@ function createWindows() {
     managerWindow.loadFile(join(__dirname, '../renderer/index.html'));
   }
 
-  // IPC: Forward layout changes from manager to sticker
+
   ipcMain.on('update-sticker-layout', (_, layout) => {
     console.log('Main received layout update:', layout);
     if (BrowserWindow.getAllWindows().length > 1) {
@@ -79,7 +76,7 @@ function createWindows() {
     }
   });
 
-  stickerWindow.webContents.openDevTools(); // Add this temporarily for debugging
+  // stickerWindow.webContents.openDevTools();
 }
 
 const stickersDir = path.join(app.getPath('userData'), 'stickers')
@@ -122,41 +119,29 @@ ipcMain.handle('set-auto-launch', async (_, enable) => {
 })
 ipcMain.handle('get-auto-launch', async () => appLauncher.isEnabled())
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
-  // Set app user model id for windows
   electronApp.setAppUserModelId('com.electron')
 
-  // Default open or close DevTools by F12 in development
-  // and ignore CommandOrControl + R in production.
-  // see https://github.com/alex8088/electron-toolkit/tree/master/packages/utils
   app.on('browser-window-created', (_, window) => {
     optimizer.watchWindowShortcuts(window)
   })
 
-  // IPC test
   ipcMain.on('ping', () => console.log('pong'))
+
+  ipcMain.handle('is-sticker-window-fullscreen', () => {
+    const stickerWindow = BrowserWindow.getAllWindows().find(win => win.webContents.getURL().includes('sticker.html'));
+    return stickerWindow ? stickerWindow.isFullScreen() : false;
+  });
 
   createWindows()
 
   app.on('activate', function () {
-    // On macOS it's common to re-create a window in the app when the
-    // dock icon is clicked and there are no other windows open.
     if (BrowserWindow.getAllWindows().length === 0) createWindows()
   })
 })
 
-// Quit when all windows are closed, except on macOS. There, it's common
-// for applications and their menu bar to stay active until the user quits
-// explicitly with Cmd + Q.
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit()
   }
 })
-
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and require them here.
-

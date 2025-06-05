@@ -7,7 +7,6 @@ import Sticker from './sticker'
 
 const root = document.getElementById('root')
 
-// Simple window detection based on HTML file
 if (window.location.pathname.includes('sticker')) {
   createRoot(root).render(
     <StrictMode>
