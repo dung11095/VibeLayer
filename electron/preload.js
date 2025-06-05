@@ -4,6 +4,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // Window management
   showControlWindow: () => ipcRenderer.invoke('show-control-window'),
   hideControlWindow: () => ipcRenderer.invoke('hide-control-window'),
+  minimizeWindow: () => ipcRenderer.invoke('minimize-window'),
+  maximizeWindow: () => ipcRenderer.invoke('maximize-window'),
+  closeWindow: () => ipcRenderer.invoke('close-window'),
   
   // Sticker management
   updateStickers: (stickers) => ipcRenderer.invoke('update-stickers', stickers),

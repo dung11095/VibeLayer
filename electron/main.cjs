@@ -53,13 +53,15 @@ function createControlWindow() {
     height: 800,
     minWidth: 800,
     minHeight: 600,
+    frame: false, // Remove default frame
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
       preload: path.join(__dirname, 'preload.js'),
     },
-    titleBarStyle: 'hiddenInset',
-    backgroundColor: '#121212',
+    backgroundColor: '#0f0f0f',
+    show: false, // Don't show initially
+    titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : undefined,
   });
 
   if (app.isPackaged) {
@@ -78,9 +80,6 @@ function createControlWindow() {
 app.whenReady().then(() => {
   createOverlayWindow();
   createControlWindow();
-  
-  // Hide control window initially
-  controlWindow.hide();
 });
 
 app.on('window-all-closed', () => {
@@ -103,6 +102,22 @@ ipcMain.handle('show-control-window', () => {
 });
 
 ipcMain.handle('hide-control-window', () => {
+  controlWindow.hide();
+});
+
+ipcMain.handle('minimize-window', () => {
+  controlWindow.minimize();
+});
+
+ipcMain.handle('maximize-window', () => {
+  if (controlWindow.isMaximized()) {
+    controlWindow.unmaximize();
+  } else {
+    controlWindow.maximize();
+  }
+});
+
+ipcMain.handle('close-window', () => {
   controlWindow.hide();
 });
 
